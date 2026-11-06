@@ -1,7 +1,7 @@
 # markdown.lua
 
-[![Build Status](https://travis-ci.org/mpeterv/markdown.png?branch=master)](https://travis-ci.org/mpeterv/markdown)
-[![Coverage Status](https://coveralls.io/repos/mpeterv/markdown/badge.svg?branch=master)](https://coveralls.io/r/mpeterv/markdown?branch=master)
+[![Build Status](https://github.com/lunarmodules/markdown/actions/workflows/test.yml/badge.svg)](https://github.com/lunarmodules/markdown/actions)
+[![Coverage Status](https://coveralls.io/repos/github/lunarmodules/markdown/badge.svg?branch=master)](https://coveralls.io/github/lunarmodules/markdown?branch=master)
 
 This is an implementation of the popular text markup language Markdown in pure Lua.
 Markdown can convert documents written in a simple and easy to read text format
