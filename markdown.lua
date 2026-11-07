@@ -1,23 +1,160 @@
 #!/usr/bin/env lua
 
+--[[
+# markdown.lua -- version 0.32
+
+<http://www.frykholm.se/files/markdown.lua>
+
+**Author:** Niklas Frykholm, <niklas@frykholm.se>  
+**Date:** 31 May 2008
+
+This is an implementation of the popular text markup language Markdown in pure Lua.
+Markdown can convert documents written in a simple and easy to read text format
+to well-formatted HTML. For a more thourough description of Markdown and the Markdown
+syntax, see <http://daringfireball.net/projects/markdown>.
+
+The original Markdown source is written in Perl and makes heavy use of advanced
+regular expression techniques (such as negative look-ahead, etc) which are not available
+in Lua's simple regex engine. Therefore this Lua port has been rewritten from the ground
+up. It is probably not completely bug free. If you notice any bugs, please report them to
+me. A unit test that exposes the error is helpful.
+
+## Usage
+
+    require "markdown"
+    markdown(source)
+
+``markdown.lua`` exposes a single global function named ``markdown(s)`` which applies the
+Markdown transformation to the specified string.
+
+``markdown.lua`` can also be used directly from the command line:
+
+	lua markdown.lua test.md
+
+Creates a file ``test.html`` with the converted content of ``test.md``. Run:
+
+    lua markdown.lua -h
+
+For a description of the command-line options.
+
+``markdown.lua`` uses the same license as Lua, the MIT license.
+
+## License
+
+Copyright &copy; 2008 Niklas Frykholm.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+to whom the Software is furnished to do so, subject to the following conditions: 
+
+The above copyright notice and this permission notice shall be included in all copies
+or substantial portions of the Software. 
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+## Version history
+
+-	**0.32** -- 31 May 2008
+	- Fix for links containing brackets
+-	**0.31** -- 1 Mar 2008
+	-	Fix for link definitions followed by spaces
+-	**0.30** -- 25 Feb 2008
+	-	Consistent behavior with Markdown when the same link reference is reused
+-	**0.29** -- 24 Feb 2008
+	-	Fix for <pre> blocks with spaces in them
+-	**0.28** -- 18 Feb 2008
+	-	Fix for link encoding
+-	**0.27** -- 14 Feb 2008
+	-	Fix for link database links with ()
+-	**0.26** -- 06 Feb 2008
+	-	Fix for nested italic and bold markers
+-	**0.25** -- 24 Jan 2008
+	-	Fix for encoding of naked <
+-	**0.24** -- 21 Jan 2008
+	-	Fix for link behavior.
+-	**0.23** -- 10 Jan 2008
+	-	Fix for a regression bug in longer expressions in italic or bold.
+-	**0.22** -- 27 Dec 2007
+	-	Fix for crash when processing blocks with a percent sign in them.
+-	**0.21** -- 27 Dec 2007
+	- 	Fix for combined strong and emphasis tags
+-	**0.20** -- 13 Oct 2007
+	-	Fix for < as well in image titles, now matches Dingus behavior
+-	**0.19** -- 28 Sep 2007
+	-	Fix for quotation marks " and ampersands & in link and image titles.
+-	**0.18** -- 28 Jul 2007
+	-	Does not crash on unmatched tags (behaves like standard markdown)
+-	**0.17** -- 12 Apr 2007
+	-	Fix for links with %20 in them.
+-	**0.16** -- 12 Apr 2007
+	-	Do not require arg global to exist.
+-	**0.15** -- 28 Aug 2006
+	-	Better handling of links with underscores in them.
+-	**0.14** -- 22 Aug 2006
+	-	Bug for *`foo()`*
+-	**0.13** -- 12 Aug 2006
+	-	Added -l option for including stylesheet inline in document.
+	-	Fixed bug in -s flag.
+	-	Fixed emphasis bug.
+-	**0.12** -- 15 May 2006
+	-	Fixed several bugs to comply with MarkdownTest 1.0 <http://six.pairlist.net/pipermail/markdown-discuss/2004-December/000909.html>
+-	**0.11** -- 12 May 2006
+	-	Fixed bug for escaping `*` and `_` inside code spans.
+	-	Added license terms.
+	-	Changed join() to table.concat().
+-	**0.10** -- 3 May 2006
+	-	Initial public release.
+
+// Niklas
+]]
+
+
+-- Set up a table for holding local functions to avoid polluting the global namespace
+local M = {}
+local MT = {__index = _G}
+setmetatable(M, MT)
+setfenv(1, M)
+
 ----------------------------------------------------------------------
 -- Utility functions
 ----------------------------------------------------------------------
 
-local unpack = table.unpack or unpack
+-- Locks table t from changes, writes an error if someone attempts to change the table.
+-- This is useful for detecting variables that have "accidently" been made global. Something
+-- I tend to do all too much.
+function lock(t)
+	function lock_new_index(t, k, v)
+		error("module has been locked -- " .. k .. " must be declared local", 2)
+	end
+
+	local mt = {__newindex = lock_new_index}
+	if getmetatable(t) then mt.__index = getmetatable(t).__index end
+	setmetatable(t, mt)
+end
 
 -- Returns the result of mapping the values in table t through the function f
-local function map(t, f)
+function map(t, f)
    local out = {}
    for k,v in pairs(t) do out[k] = f(v,k) end
    return out
 end
 
+-- The identity function, useful as a placeholder.
+function identity(text) return text end
+
 -- Functional style if statement. (NOTE: no short circuit evaluation)
-local function iff(t, a, b) if t then return a else return b end end
+function iff(t, a, b) if t then return a else return b end end
 
 -- Splits the text into an array of separate lines.
-local function split(text, sep)
+function split(text, sep)
    sep = sep or "\n"
    local lines = {}
    local pos = 1
@@ -31,7 +168,7 @@ local function split(text, sep)
 end
 
 -- Converts tabs to spaces
-local function detab(text)
+function detab(text)
    local tab_width = 4
    local function rep(match)
       local spaces = -match:len()
@@ -43,7 +180,7 @@ local function detab(text)
 end
 
 -- Applies string.find for every pattern in the list and returns the first match
-local function find_first(s, patterns, index)
+function find_first(s, patterns, index)
    local res = {}
    for _,p in ipairs(patterns) do
       local match = {s:find(p, index)}
@@ -55,14 +192,14 @@ end
 -- If a replacement array is specified, the range [start, stop] in the array is replaced
 -- with the replacement array and the resulting array is returned. Without a replacement
 -- array the section of the array between start and stop is returned.
-local function splice(array, start, stop, replacement)
+function splice(array, start, stop, replacement)
    if replacement then
       local n = stop - start + 1
       while n > 0 do
          table.remove(array, start)
          n = n - 1
       end
-      for _,v in ipairs(replacement) do
+		for i,v in ipairs(replacement) do
          table.insert(array, start, v)
       end
       return array
@@ -76,7 +213,7 @@ local function splice(array, start, stop, replacement)
 end
 
 -- Outdents the text one step.
-local function outdent(text)
+function outdent(text)
    text = "\n" .. text
    text = text:gsub("\n  ? ? ?", "\n")
    text = text:sub(2)
@@ -84,7 +221,7 @@ local function outdent(text)
 end
 
 -- Indents the text one step.
-local function indent(text)
+function indent(text)
    text = text:gsub("\n", "\n    ")
    return text
 end
@@ -92,7 +229,7 @@ end
 -- Does a simple tokenization of html data. Returns the data as a list of tokens.
 -- Each token is a table with a type field (which is either "tag" or "text") and
 -- a text field (which contains the original token data).
-local function tokenize_html(html)
+function tokenize_html(html)
    local tokens = {}
    local pos = 1
    while true do
@@ -150,7 +287,7 @@ local HASH = {
 
 -- Inits hashing. Creates a hash_identifier that doesn't occur anywhere
 -- in the text.
-local function init_hash(text)
+function init_hash(text)
    HASH.inited = true
    HASH.identifier = ""
    HASH.counter = 0
@@ -168,7 +305,7 @@ local function init_hash(text)
 end
 
 -- Returns the hashed value for s.
-local function hash(s)
+function hash(s)
    assert(HASH.inited)
    if not HASH.table[s] then
       HASH.counter = HASH.counter + 1
@@ -205,18 +342,18 @@ local PD = {
 --        Nested data.
 --     </div>
 -- </div>
-local function block_pattern(tag)
+function block_pattern(tag)
    return "\n<" .. tag .. ".-\n</" .. tag .. ">[ \t]*\n"
 end
 
 -- Pattern for matching a block tag that begins and ends with a newline
-local function line_pattern(tag)
+function line_pattern(tag)
    return "\n<" .. tag .. ".-</" .. tag .. ">[ \t]*\n"
 end
 
 -- Protects the range of characters from start to stop in the text and
 -- returns the protected string.
-local function protect_range(text, start, stop)
+function protect_range(text, start, stop)
    local s = text:sub(start, stop)
    local h = hash(s)
    PD.blocks[h] = s
@@ -226,7 +363,7 @@ end
 
 -- Protect every part of the text that matches any of the patterns. The first
 -- matching pattern is protected first, etc.
-local function protect_matches(text, patterns)
+function protect_matches(text, patterns)
    while true do
       local start, stop = find_first(text, patterns)
       if not start then break end
@@ -236,7 +373,7 @@ local function protect_matches(text, patterns)
 end
 
 -- Protects blocklevel tags in the specified text
-local function protect(text)
+function protect(text)
    -- First protect potentially nested block tags
    text = protect_matches(text, map(PD.tags, block_pattern))
    -- Then protect block tags at the line level.
@@ -248,12 +385,12 @@ local function protect(text)
 end
 
 -- Returns true if the string s is a hash resulting from protection
-local function is_protected(s)
+function is_protected(s)
    return PD.blocks[s]
 end
 
 -- Unprotects the specified text by expanding all the nonces
-local function unprotect(text)
+function unprotect(text)
    for k,v in pairs(PD.blocks) do
       v = v:gsub("%%", "%%%%")
       text = text:gsub(k, v)
@@ -273,14 +410,14 @@ end
 -- Returns true if the line is a ruler of (char) characters.
 -- The line must contain at least three char characters and contain only spaces and
 -- char characters.
-local function is_ruler_of(line, char)
+function is_ruler_of(line, char)
    if not line:match("^[ %" .. char .. "]*$") then return false end
    if not line:match("%" .. char .. ".*%" .. char .. ".*%" .. char) then return false end
    return true
 end
 
 -- Identifies the block level formatting present in the line
-local function classify(line)
+function classify(line)
    local info = {line = line, text = line}
 
    if line:match("^    ") then
@@ -346,7 +483,7 @@ end
 
 -- Find headers constisting of a normal line followed by a ruler and converts them to
 -- header entries.
-local function headers(array)
+function headers(array)
    local i = 1
    while i <= #array - 1 do
       if array[i].type  == "normal" and array[i+1].type == "ruler" and
@@ -363,45 +500,8 @@ local function headers(array)
    return array
 end
 
--- Forward declarations
-local block_transform, span_transform, encode_code
-
--- Convert lines to html code
-local function blocks_to_html(lines, no_paragraphs)
-   local out = {}
-   local i = 1
-   while i <= #lines do
-      local line = lines[i]
-      if line.type == "ruler" then
-         table.insert(out, "<hr/>")
-      elseif line.type == "raw" then
-         table.insert(out, line.html)
-      elseif line.type == "normal" then
-         local s = line.line
-
-         while i+1 <= #lines and lines[i+1].type == "normal" do
-            i = i + 1
-            s = s .. "\n" .. lines[i].line
-         end
-
-         if no_paragraphs then
-            table.insert(out, span_transform(s))
-         else
-            table.insert(out, "<p>" .. span_transform(s) .. "</p>")
-         end
-      elseif line.type == "header" then
-         local s = "<h" .. line.level .. ">" .. span_transform(line.text) .. "</h" .. line.level .. ">"
-         table.insert(out, s)
-      else
-         table.insert(out, line.line)
-      end
-      i = i + 1
-   end
-   return out
-end
-
 -- Find list blocks and convert them to protected data blocks
-local function lists(array, sublist)
+function lists(array, sublist)
    local function process_list(arr)
       local function any_blanks(arr)
          for i = 1, #arr do
@@ -524,7 +624,7 @@ local function lists(array, sublist)
 end
 
 -- Find and convert blockquote markers.
-local function blockquotes(lines)
+function blockquotes(lines)
    local function find_blockquote(lines)
       local start
       for i,line in ipairs(lines) do
@@ -574,7 +674,7 @@ local function blockquotes(lines)
 end
 
 -- Find and convert codeblocks.
-local function codeblocks(lines)
+function codeblocks(lines)
    local function find_codeblock(lines)
       local start
       for i,line in ipairs(lines) do
@@ -615,6 +715,40 @@ local function codeblocks(lines)
    return lines
 end
 
+-- Convert lines to html code
+function blocks_to_html(lines, no_paragraphs)
+	local out = {}
+	local i = 1
+	while i <= #lines do
+		local line = lines[i]
+		if line.type == "ruler" then
+			table.insert(out, "<hr/>")
+		elseif line.type == "raw" then
+			table.insert(out, line.html)
+		elseif line.type == "normal" then
+			local s = line.line
+			
+			while i+1 <= #lines and lines[i+1].type == "normal" do
+				i = i + 1
+				s = s .. "\n" .. lines[i].line
+			end
+			
+			if no_paragraphs then
+				table.insert(out, span_transform(s))
+			else
+				table.insert(out, "<p>" .. span_transform(s) .. "</p>")
+			end
+		elseif line.type == "header" then
+			local s = "<h" .. line.level .. ">" .. span_transform(line.text) .. "</h" .. line.level .. ">"
+			table.insert(out, s)
+		else
+			table.insert(out, line.line)
+		end
+		i = i + 1
+	end
+	return out
+end
+
 -- Perform all the block level transforms
 function block_transform(text, sublist)
    local lines = split(text)
@@ -628,6 +762,14 @@ function block_transform(text, sublist)
    return text
 end
 
+-- Debug function for printing a line array to see the result
+-- of partial transforms.
+function print_lines(lines)
+	for i, line in ipairs(lines) do
+		print(i, line.type, line.text or line.line)
+	end
+end
+
 ----------------------------------------------------------------------
 -- Span transform
 ----------------------------------------------------------------------
@@ -636,10 +778,10 @@ end
 
 -- These characters may need to be escaped because they have a special
 -- meaning in markdown.
-local escape_chars = "'\\`*_{}[]()>#+-.!'"
-local escape_table = {}
+escape_chars = "'\\`*_{}[]()>#+-.!'"
+escape_table = {}
 
-local function init_escape_table()
+function init_escape_table()
    escape_table = {}
    for i = 1,#escape_chars do
       local c = escape_chars:sub(i,i)
@@ -648,24 +790,15 @@ local function init_escape_table()
 end
 
 -- Adds a new escape to the escape table.
-local function add_escape(text)
+function add_escape(text)
    if not escape_table[text] then
       escape_table[text] = hash(text)
    end
    return escape_table[text]
 end
 
--- Encode backspace-escaped characters in the markdown source.
-local function encode_backslash_escapes(t)
-   for i=1,escape_chars:len() do
-      local c = escape_chars:sub(i,i)
-      t = t:gsub("\\%" .. c, escape_table[c])
-   end
-   return t
-end
-
 -- Escape characters that should not be disturbed by markdown.
-local function escape_special_chars(text)
+function escape_special_chars(text)
    local tokens = tokenize_html(text)
 
    local out = ""
@@ -683,8 +816,17 @@ local function escape_special_chars(text)
    return out
 end
 
+-- Encode backspace-escaped characters in the markdown source.
+function encode_backslash_escapes(t)
+	for i=1,escape_chars:len() do
+		local c = escape_chars:sub(i,i)
+		t = t:gsub("\\%" .. c, escape_table[c])
+	end
+	return t
+end
+
 -- Unescape characters that have been encoded.
-local function unescape_special_chars(t)
+function unescape_special_chars(t)
    local tin = t
    for k,v in pairs(escape_table) do
       k = k:gsub("%%", "%%%%")
@@ -708,7 +850,7 @@ function encode_code(s)
 end
 
 -- Handle backtick blocks.
-local function code_spans(s)
+function code_spans(s)
    s = s:gsub("\\\\", escape_table["\\"])
    s = s:gsub("\\`", escape_table["`"])
 
@@ -738,7 +880,7 @@ local function code_spans(s)
 end
 
 -- Encode alt text... enodes &, and ".
-local function encode_alt(s)
+function encode_alt(s)
    if not s then return s end
    s = s:gsub('&', '&amp;')
    s = s:gsub('"', '&quot;')
@@ -746,11 +888,8 @@ local function encode_alt(s)
    return s
 end
 
--- Forward declaration for link_db as returned by strip_link_definitions.
-local link_database
-
 -- Handle image references
-local function images(text)
+function images(text)
    local function reference_link(alt, id)
       alt = encode_alt(alt:match("%b[]"):sub(2,-2))
       id = id:match("%[(.*)%]"):lower()
@@ -783,7 +922,7 @@ local function images(text)
 end
 
 -- Handle anchor references
-local function anchors(text)
+function anchors(text)
    local function reference_link(text, id)
       text = text:match("%b[]"):sub(2,-2)
       id = id:match("%b[]"):sub(2,-2):lower()
@@ -816,7 +955,7 @@ local function anchors(text)
 end
 
 -- Handle auto links, i.e. <http://www.google.com/>.
-local function auto_links(text)
+function auto_links(text)
    local function link(s)
       return add_escape("<a href=\"" .. s .. "\">") .. s .. "</a>"
    end
@@ -865,7 +1004,7 @@ end
 
 -- Encode free standing amps (&) and angles (<)... note that this does not
 -- encode free >.
-local function amps_and_angles(s)
+function amps_and_angles(s)
    -- encode amps not part of &..; expression
    local pos = 1
    while true do
@@ -890,7 +1029,7 @@ local function amps_and_angles(s)
 end
 
 -- Handles emphasis markers (* and _) in the text.
-local function emphasis(text)
+function emphasis(text)
    for _, s in ipairs {"%*%*", "%_%_"} do
       text = text:gsub(s .. "([^%s][%*%_]?)" .. s, "<strong>%1</strong>")
       text = text:gsub(s .. "([^%s][^<>]-[^%s][%*%_]?)" .. s, "<strong>%1</strong>")
@@ -905,7 +1044,7 @@ local function emphasis(text)
 end
 
 -- Handles line break markers in the text.
-local function line_breaks(text)
+function line_breaks(text)
    return text:gsub("  +\n", " <br/>\n")
 end
 
@@ -928,7 +1067,7 @@ end
 
 -- Cleanup the text by normalizing some possible variations to make further
 -- processing easier.
-local function cleanup(text)
+function cleanup(text)
    -- Standardize line endings
    text = text:gsub("\r\n", "\n")  -- DOS to UNIX
    text = text:gsub("\r", "\n")    -- Mac to UNIX
@@ -947,7 +1086,7 @@ local function cleanup(text)
 end
 
 -- Strips link definitions from the text and stores the data in a lookup table.
-local function strip_link_definitions(text)
+function strip_link_definitions(text)
    local linkdb = {}
 
    local function link_def(id, url, title)
@@ -970,8 +1109,10 @@ local function strip_link_definitions(text)
    return text, linkdb
 end
 
+link_database = {}
+
 -- Main markdown processing function
-local function markdown(text)
+function markdown(text)
    init_hash(text)
    init_escape_table()
 
@@ -987,8 +1128,11 @@ end
 -- End of module
 ----------------------------------------------------------------------
 
--- For compatibility, set markdown function as a global
-_G.markdown = markdown
+setfenv(1, _G)
+M.lock(M)
+
+-- Expose markdown function to the world
+markdown = M.markdown
 
 -- Class for parsing command-line options
 local OptionParser = {}
@@ -1039,7 +1183,7 @@ function OptionParser:run(args)
             info.f()
             pos = pos + 1
          else
-            local param = args[pos+1]
+				param = args[pos+1]
             if not param then print("No parameter for flag: " .. arg) return false end
             info.f(param)
             pos = pos+2
@@ -1053,12 +1197,12 @@ function OptionParser:run(args)
                info.f()
             else
                if i == arg:len() then
-                  local param = args[pos+1]
+						param = args[pos+1]
                   if not param then print("No parameter for flag: -" .. c) return false end
                   info.f(param)
                   pos = pos + 1
                else
-                  local param = arg:sub(i+1)
+						param = arg:sub(i+1)
                   info.f(param)
                end
                break
@@ -1073,22 +1217,17 @@ function OptionParser:run(args)
    return true
 end
 
-local function read_file(path, descr)
-   local file = io.open(path) or error("Could not open " .. descr .. " file: " .. path)
-   local contents = file:read("*a") or error("Could not read " .. descr .. " from " .. path)
-   file:close()
-   return contents
-end
-
 -- Handles the case when markdown is run from the command line
 local function run_command_line(arg)
    -- Generate output for input s given options
    local function run(s, options)
       s = markdown(s)
       if not options.wrap_header then return s end
-      local header
+		local header = ""
       if options.header then
-         header = read_file(options.header, "header")
+			local f = io.open(options.header) or error("Could not open file: " .. options.header) 
+			header = f:read("*a")
+			f:close()
       else
          header = [[
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -1104,7 +1243,13 @@ local function run_command_line(arg)
             s:match("<h3>(.-)</h3>") or "Untitled"
          header = header:gsub("TITLE", title)
          if options.inline_style then
-            local style = read_file(options.stylesheet, "style sheet")
+				local style = ""
+				local f = io.open(options.stylesheet)
+				if f then 
+					style = f:read("*a") f:close() 
+				else
+					error("Could not include style sheet " .. options.stylesheet .. ": File not found")
+				end
             header = header:gsub('<link rel="stylesheet" type="text/css" href="STYLESHEET" />',
                "<style type=\"text/css\"><!--\n" .. style .. "\n--></style>")
          else
@@ -1114,7 +1259,9 @@ local function run_command_line(arg)
       end
       local footer = "</body></html>"
       if options.footer then
-         footer = read_file(options.footer, "footer")
+			local f = io.open(options.footer) or error("Could not open file: " .. options.footer)
+			footer = f:read("*a")
+			f:close()
       end
       return header .. s .. footer
    end
@@ -1167,15 +1314,13 @@ Other options:
    op:param("c", "charset", function (x) options.charset = x end)
    op:param("i", "title", function(x) options.title = x end)
    op:param("s", "style", function(x) options.stylesheet = x end)
-   op:flag("l", "inline-style", function() options.inline_style = true end)
+	op:flag("l", "inline-style", function(x) options.inline_style = true end)
    op:flag("a", "append", function() options.append = true end)
    op:flag("t", "test", function()
-      local n = arg[0]:gsub("markdown%.lua", "markdown-tests.lua")
+		local n = arg[0]:gsub("markdown.lua", "markdown-tests.lua")
       local f = io.open(n)
       if f then
-         f:close()
-         package.loaded.markdown = markdown
-         dofile(n)
+			f:close() dofile(n) 
       else
          error("Cannot find markdown-tests.lua")
       end
@@ -1183,9 +1328,11 @@ Other options:
    end)
    op:flag("h", "help", function() print(help) run_stdin = false end)
    op:arg(function(path)
-      local s = read_file(path, "input")
+			local file = io.open(path) or error("Could not open file: " .. path)
+			local s = file:read("*a")
+			file:close()
       s = run(s, options)
-      local file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
+			file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
       file:write(s)
       file:close()
       run_stdin = false
