@@ -35,7 +35,11 @@ Creates a file ``test.html`` with the converted content of ``test.md``. Run:
 
    lua markdown.lua -h
 
-For a description of the command-line options.
+For a description of the command-line options. Run:
+
+   lua markdown.lua --version
+
+For the version of ``markdown.lua``.
 
 ``markdown.lua`` uses the same license as Lua, the MIT license.
 
@@ -116,6 +120,8 @@ THE SOFTWARE.
 // Niklas
 ]]
 
+-- the version of this library
+local MARKDOWN_VERSION = "0.34"
 
 -- Set up a table for holding local functions to avoid polluting the global namespace
 local M = {}
@@ -1302,6 +1308,7 @@ Generated files:
 Other options:
     -h, --help           Print this help text.
     -t, --test           Run the unit tests.
+    --version            Print the version of markdown.lua.
 ]]
 
    local run_stdin = true
@@ -1325,6 +1332,7 @@ Other options:
       run_stdin = false
    end)
    op:flag("h", "help", function() print(help) run_stdin = false end)
+   op:flag(nil, "version", function() print(MARKDOWN_VERSION) run_stdin = false end)
    op:arg(function(path)
       local file = io.open(path) or error("Could not open file: " .. path)
       local s = file:read("*a")
@@ -1334,8 +1342,7 @@ Other options:
       file:write(s)
       file:close()
       run_stdin = false
-   end
-   )
+   end)
 
    if not op:run(arg) then
       print(help)
