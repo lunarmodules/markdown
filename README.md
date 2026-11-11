@@ -15,7 +15,7 @@ up. It is probably not completely bug free. If you notice any bugs, please repor
 GitHub issues. A unit test that exposes the error is helpful.
 
 `markdown.lua` has been written by Niklas Frykholm ([original](http://www.frykholm.se/files/markdown.lua)).
-This version has been updated to run under Lua 5.2 and Lua 5.3 in addition to Lua 5.1.
+This version has been updated to run under Lua 5.5, Lua 5.4, Lua 5.3 and Lua 5.2 in addition to Lua 5.1.
 
 ## Usage
 
@@ -52,9 +52,19 @@ For the version of `markdown.lua`.
 Simply copy `markdown.lua` into your directory for Lua libraries. Alternatively,
 use [LuaRocks](https://luarocks.org/) and run `[sudo] luarocks install markdown`.
 
-## Miscellaneous
+## License
 
 `markdown.lua` uses the same license as Lua, the MIT license.
 
-An alternative Markdown implementation is [lua-discount](http://asbradbury.org/projects/lua-discount/).
+## Alternatives
+
+* An alternative Markdown implementation is [lua-discount](http://asbradbury.org/projects/lua-discount/).
 It is faster than `markdown.lua`, at the cost of being written in C.
+
+* Another alternative Markdown implementation, [cmark-lua](https://github.com/jgm/cmark-lua)
+is a Lua binding to `libcmark`, CommonMark parsing and rendering library, allowing the user
+to construct `cmark` nodes through a builder API. It also has the cost of being written in C.
+
+## History
+
+Browse the [changelog](./CHANGELOG.md).
