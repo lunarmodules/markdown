@@ -52,6 +52,36 @@ jobs:
     - name: Install LuaRocks
       uses: luarocks/gh-actions-luarocks@95d2308a0aff36ad31ebadca493ed14853399842 # v7
 
+    - name: Lint development rockspec
+      run: luarocks lint "markdown-scm-1.rockspec"
+
+    - name: Lint release rockspecs (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        for rockspec in rockspecs/*.rockspec; do
+          echo "Linting rockspec: ${rockspec}";
+
+          luarocks lint "${rockspec}" || {
+            echo "Failed to lint rockspec: ${rockspec}";
+            exit 1;
+          }
+        done
+
+    - name: Lint release rockspecs (Windows)
+      if: runner.os == 'Windows'
+      shell: cmd
+      run: |
+        FOR %%R IN (rockspecs\*.rockspec) DO (
+          ECHO Linting rockspec: %%R
+
+          luarocks lint "%%R"
+
+          IF %ERRORLEVEL% NEQ 0 (
+            ECHO Failed to lint rockspec: %%R
+            EXIT /B 1
+          )
+        )
+
     - name: Install test dependencies (luacov)
       run: luarocks install luacov
 
