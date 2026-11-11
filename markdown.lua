@@ -1,11 +1,18 @@
 #!/usr/bin/env lua
 
 --[[
-# markdown.lua -- version 0.32
+# markdown.lua -- version 0.34
 
-<http://www.frykholm.se/files/markdown.lua>
+**Current maintainer:** LunarModules maintainers
+**Website:** <https://github.com/lunarmodules/markdown>
+**Date:** 11 Nov 2026
 
-**Author:** Niklas Frykholm, <niklas@frykholm.se>
+**Previous maintainer:** Peter Melnichenko
+**Website:** <https://github.com/mpeterv/markdown>
+**Date:** 27 Sep 2015
+
+**Previous maintainer:** Niklas Frykholm, <niklas@frykholm.se>
+**Website:** <http://www.frykholm.se/files/markdown.lua>
 **Date:** 31 May 2008
 
 This is an implementation of the popular text markup language Markdown in pure Lua.
@@ -46,6 +53,8 @@ For the version of ``markdown.lua``.
 ## License
 
 Copyright &copy; 2008 Niklas Frykholm.
+Copyright &copy; 2015 Peter Melnichenko.
+Copyright &copy; 2026 LunarModules maintainers.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this
 software and associated documentation files (the "Software"), to deal in the Software
@@ -66,8 +75,17 @@ THE SOFTWARE.
 
 ## Version history
 
+-   **0.34** -- 11 Nov 2026
+   -   Include support for Lua 5.4 and Lua 5.5 importing commits from ldoc <https://github.com/lunarmodules/ldoc>
+   -   Moved CI to GitHub
+   -   Add `--version` flag to CLI: `lua markdown.lua --version`
+   -   Add `CHANGELOG.md` to document the changes
+   -   Add `RELEASES.md` to provide guidance to publish a new release
+   -   Add CI workflow (`publish.yml`) to publish new releases to LuaRocks.org and GitHub Releases
+-   **0.33** -- 27 Sep 2015
+   -   ``markdown.lua`` now supports Lua 5.2 and Lua 5.3 in addition to Lua 5.1.
 -   **0.32** -- 31 May 2008
-   - Fix for links containing brackets
+   -   Fix for links containing brackets
 -   **0.31** -- 1 Mar 2008
    -   Fix for link definitions followed by spaces
 -   **0.30** -- 25 Feb 2008
