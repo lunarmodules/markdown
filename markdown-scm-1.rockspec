@@ -20,7 +20,7 @@ description = {
    homepage = "https://github.com/" .. github_account_name .. "/" .. github_repo_name
 }
 dependencies = {
-   "lua >= 5.1, < 5.4"
+   "lua >= 5.1, <= 5.5"
 }
 build = {
    type = "builtin",
