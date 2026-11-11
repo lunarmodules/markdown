@@ -5,7 +5,7 @@
 
 <http://www.frykholm.se/files/markdown.lua>
 
-**Author:** Niklas Frykholm, <niklas@frykholm.se>  
+**Author:** Niklas Frykholm, <niklas@frykholm.se>
 **Date:** 31 May 2008
 
 This is an implementation of the popular text markup language Markdown in pure Lua.
@@ -21,19 +21,19 @@ me. A unit test that exposes the error is helpful.
 
 ## Usage
 
-    require "markdown"
-    markdown(source)
+   require "markdown"
+   markdown(source)
 
 ``markdown.lua`` exposes a single global function named ``markdown(s)`` which applies the
 Markdown transformation to the specified string.
 
 ``markdown.lua`` can also be used directly from the command line:
 
-	lua markdown.lua test.md
+   lua markdown.lua test.md
 
 Creates a file ``test.html`` with the converted content of ``test.md``. Run:
 
-    lua markdown.lua -h
+   lua markdown.lua -h
 
 For a description of the command-line options.
 
@@ -47,10 +47,10 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 software and associated documentation files (the "Software"), to deal in the Software
 without restriction, including without limitation the rights to use, copy, modify, merge,
 publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
-to whom the Software is furnished to do so, subject to the following conditions: 
+to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies
-or substantial portions of the Software. 
+or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -62,56 +62,56 @@ THE SOFTWARE.
 
 ## Version history
 
--	**0.32** -- 31 May 2008
-	- Fix for links containing brackets
--	**0.31** -- 1 Mar 2008
-	-	Fix for link definitions followed by spaces
--	**0.30** -- 25 Feb 2008
-	-	Consistent behavior with Markdown when the same link reference is reused
--	**0.29** -- 24 Feb 2008
-	-	Fix for <pre> blocks with spaces in them
--	**0.28** -- 18 Feb 2008
-	-	Fix for link encoding
--	**0.27** -- 14 Feb 2008
-	-	Fix for link database links with ()
--	**0.26** -- 06 Feb 2008
-	-	Fix for nested italic and bold markers
--	**0.25** -- 24 Jan 2008
-	-	Fix for encoding of naked <
--	**0.24** -- 21 Jan 2008
-	-	Fix for link behavior.
--	**0.23** -- 10 Jan 2008
-	-	Fix for a regression bug in longer expressions in italic or bold.
--	**0.22** -- 27 Dec 2007
-	-	Fix for crash when processing blocks with a percent sign in them.
--	**0.21** -- 27 Dec 2007
-	- 	Fix for combined strong and emphasis tags
--	**0.20** -- 13 Oct 2007
-	-	Fix for < as well in image titles, now matches Dingus behavior
--	**0.19** -- 28 Sep 2007
-	-	Fix for quotation marks " and ampersands & in link and image titles.
--	**0.18** -- 28 Jul 2007
-	-	Does not crash on unmatched tags (behaves like standard markdown)
--	**0.17** -- 12 Apr 2007
-	-	Fix for links with %20 in them.
--	**0.16** -- 12 Apr 2007
-	-	Do not require arg global to exist.
--	**0.15** -- 28 Aug 2006
-	-	Better handling of links with underscores in them.
--	**0.14** -- 22 Aug 2006
-	-	Bug for *`foo()`*
--	**0.13** -- 12 Aug 2006
-	-	Added -l option for including stylesheet inline in document.
-	-	Fixed bug in -s flag.
-	-	Fixed emphasis bug.
--	**0.12** -- 15 May 2006
-	-	Fixed several bugs to comply with MarkdownTest 1.0 <http://six.pairlist.net/pipermail/markdown-discuss/2004-December/000909.html>
--	**0.11** -- 12 May 2006
-	-	Fixed bug for escaping `*` and `_` inside code spans.
-	-	Added license terms.
-	-	Changed join() to table.concat().
--	**0.10** -- 3 May 2006
-	-	Initial public release.
+-   **0.32** -- 31 May 2008
+   - Fix for links containing brackets
+-   **0.31** -- 1 Mar 2008
+   -   Fix for link definitions followed by spaces
+-   **0.30** -- 25 Feb 2008
+   -   Consistent behavior with Markdown when the same link reference is reused
+-   **0.29** -- 24 Feb 2008
+   -   Fix for <pre> blocks with spaces in them
+-   **0.28** -- 18 Feb 2008
+   -   Fix for link encoding
+-   **0.27** -- 14 Feb 2008
+   -   Fix for link database links with ()
+-   **0.26** -- 06 Feb 2008
+   -   Fix for nested italic and bold markers
+-   **0.25** -- 24 Jan 2008
+   -   Fix for encoding of naked <
+-   **0.24** -- 21 Jan 2008
+   -   Fix for link behavior.
+-   **0.23** -- 10 Jan 2008
+   -   Fix for a regression bug in longer expressions in italic or bold.
+-   **0.22** -- 27 Dec 2007
+   -   Fix for crash when processing blocks with a percent sign in them.
+-   **0.21** -- 27 Dec 2007
+   -    Fix for combined strong and emphasis tags
+-   **0.20** -- 13 Oct 2007
+   -   Fix for < as well in image titles, now matches Dingus behavior
+-   **0.19** -- 28 Sep 2007
+   -   Fix for quotation marks " and ampersands & in link and image titles.
+-   **0.18** -- 28 Jul 2007
+   -   Does not crash on unmatched tags (behaves like standard markdown)
+-   **0.17** -- 12 Apr 2007
+   -   Fix for links with %20 in them.
+-   **0.16** -- 12 Apr 2007
+   -   Do not require arg global to exist.
+-   **0.15** -- 28 Aug 2006
+   -   Better handling of links with underscores in them.
+-   **0.14** -- 22 Aug 2006
+   -   Bug for *`foo()`*
+-   **0.13** -- 12 Aug 2006
+   -   Added -l option for including stylesheet inline in document.
+   -   Fixed bug in -s flag.
+   -   Fixed emphasis bug.
+-   **0.12** -- 15 May 2006
+   -   Fixed several bugs to comply with MarkdownTest 1.0 <http://six.pairlist.net/pipermail/markdown-discuss/2004-December/000909.html>
+-   **0.11** -- 12 May 2006
+   -   Fixed bug for escaping `*` and `_` inside code spans.
+   -   Added license terms.
+   -   Changed join() to table.concat().
+-   **0.10** -- 3 May 2006
+   -   Initial public release.
 
 // Niklas
 ]]
@@ -131,15 +131,15 @@ setmetatable(M, MT)
 -- This is useful for detecting variables that have "accidentally" been made global. Something
 -- I tend to do all too much.
 function M.lock(t)
-	local function lock_new_index(t, k, v)
-		error("module has been locked -- " .. k .. " must be declared local", 2)
-	end
+   local function lock_new_index(t, k, v)
+      error("module has been locked -- " .. k .. " must be declared local", 2)
+   end
 
-	local mt = {__newindex = lock_new_index}
-	if getmetatable(t) then
+   local mt = {__newindex = lock_new_index}
+   if getmetatable(t) then
       mt.__index = getmetatable(t).__index
    end
-	setmetatable(t, mt)
+   setmetatable(t, mt)
 end
 
 -- Returns the result of mapping the values in table t through the function f
@@ -198,7 +198,7 @@ local function splice(array, start, stop, replacement)
          table.remove(array, start)
          n = n - 1
       end
-		for i,v in ipairs(replacement) do
+      for i,v in ipairs(replacement) do
          table.insert(array, start, v)
       end
       return array
@@ -638,14 +638,14 @@ local function blockquotes(lines)
 
       local stop = #lines
       for i = start+1, #lines do
-			-- luacheck: push ignore 542
+         -- luacheck: push ignore 542
          if lines[i].type == "blank" or lines[i].type == "blockquote" then
          elseif lines[i].type == "normal" then
             if lines[i-1].type == "blank" then stop = i-1 break end
          else
             stop = i-1 break
          end
-			-- luacheck: pop
+         -- luacheck: pop
       end
       while lines[stop].type == "blank" do stop = stop - 1 end
       return start, stop
@@ -720,36 +720,36 @@ end
 
 -- Convert lines to html code
 function blocks_to_html(lines, no_paragraphs)
-	local out = {}
-	local i = 1
-	while i <= #lines do
-		local line = lines[i]
-		if line.type == "ruler" then
-			table.insert(out, "<hr/>")
-		elseif line.type == "raw" then
-			table.insert(out, line.html)
-		elseif line.type == "normal" then
-			local s = line.line
-			
-			while i+1 <= #lines and lines[i+1].type == "normal" do
-				i = i + 1
-				s = s .. "\n" .. lines[i].line
-			end
-			
-			if no_paragraphs then
-				table.insert(out, span_transform(s))
-			else
-				table.insert(out, "<p>" .. span_transform(s) .. "</p>")
-			end
-		elseif line.type == "header" then
-			local s = "<h" .. line.level .. ">" .. span_transform(line.text) .. "</h" .. line.level .. ">"
-			table.insert(out, s)
-		else
-			table.insert(out, line.line)
-		end
-		i = i + 1
-	end
-	return out
+   local out = {}
+   local i = 1
+   while i <= #lines do
+      local line = lines[i]
+      if line.type == "ruler" then
+         table.insert(out, "<hr/>")
+      elseif line.type == "raw" then
+         table.insert(out, line.html)
+      elseif line.type == "normal" then
+         local s = line.line
+
+         while i+1 <= #lines and lines[i+1].type == "normal" do
+            i = i + 1
+            s = s .. "\n" .. lines[i].line
+         end
+
+         if no_paragraphs then
+            table.insert(out, span_transform(s))
+         else
+            table.insert(out, "<p>" .. span_transform(s) .. "</p>")
+         end
+      elseif line.type == "header" then
+         local s = "<h" .. line.level .. ">" .. span_transform(line.text) .. "</h" .. line.level .. ">"
+         table.insert(out, s)
+      else
+         table.insert(out, line.line)
+      end
+      i = i + 1
+   end
+   return out
 end
 
 -- Perform all the block level transforms
@@ -813,19 +813,19 @@ end
 
 -- Encode backspace-escaped characters in the markdown source.
 function encode_backslash_escapes(t)
-	for i=1,escape_chars:len() do
-		local c = escape_chars:sub(i,i)
-		t = t:gsub("\\%" .. c, escape_table[c])
-	end
-	return t
+   for i=1,escape_chars:len() do
+      local c = escape_chars:sub(i,i)
+      t = t:gsub("\\%" .. c, escape_table[c])
+   end
+   return t
 end
 
 -- Unescape characters that have been encoded.
 local function unescape_special_chars(t)
    local tin = t
    for k,v in pairs(escape_table) do
-		local pattern = k:gsub("%%", "%%%%")
-		t = t:gsub(v,pattern)
+      local pattern = k:gsub("%%", "%%%%")
+      t = t:gsub(v,pattern)
    end
    if t ~= tin then t = unescape_special_chars(t) end
    return t
@@ -854,7 +854,7 @@ local function code_spans(s)
       local start, stop = s:find("`+", pos)
       if not start then return s end
       local count = stop - start + 1
-		-- Find a matching number of backticks
+      -- Find a matching number of backticks
       local estart, estop = s:find(string.rep("`", count), stop+1)
       local brstart = s:find("\n", stop+1)
       if estart and (not brstart or estart < brstart) then
@@ -1167,12 +1167,12 @@ function OptionParser:run(args)
    while pos <= #args do
       local arg = args[pos]
       if arg == "--" then
-			-- luacheck: push ignore 512
+         -- luacheck: push ignore 512
          for i=pos+1,#args do
             if self.arg then self.arg(args[i]) end
             return true
          end
-			-- luacheck: pop
+         -- luacheck: pop
       end
       if arg:match("^%-%-") then
          local info = self.long[arg:sub(3)]
@@ -1181,7 +1181,7 @@ function OptionParser:run(args)
             info.f()
             pos = pos + 1
          else
-				param = args[pos+1]
+            param = args[pos+1]
             if not param then print("No parameter for flag: " .. arg) return false end
             info.f(param)
             pos = pos+2
@@ -1195,12 +1195,12 @@ function OptionParser:run(args)
                info.f()
             else
                if i == arg:len() then
-						param = args[pos+1]
+                  param = args[pos+1]
                   if not param then print("No parameter for flag: -" .. c) return false end
                   info.f(param)
                   pos = pos + 1
                else
-						param = arg:sub(i+1)
+                  param = arg:sub(i+1)
                   info.f(param)
                end
                break
@@ -1221,11 +1221,11 @@ local function run_command_line(arg)
    local function run(s, options)
       s = markdown(s)
       if not options.wrap_header then return s end
-		local header
+      local header
       if options.header then
-			local f = io.open(options.header) or error("Could not open file: " .. options.header) 
-			header = f:read("*a")
-			f:close()
+         local f = io.open(options.header) or error("Could not open file: " .. options.header)
+         header = f:read("*a")
+         f:close()
       else
          header = [[
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -1241,13 +1241,13 @@ local function run_command_line(arg)
             s:match("<h3>(.-)</h3>") or "Untitled"
          header = header:gsub("TITLE", title)
          if options.inline_style then
-				local style = ""
-				local f = io.open(options.stylesheet)
-				if f then 
-					style = f:read("*a") f:close() 
-				else
-					error("Could not include style sheet " .. options.stylesheet .. ": File not found")
-				end
+            local style = ""
+            local f = io.open(options.stylesheet)
+            if f then
+               style = f:read("*a") f:close()
+            else
+               error("Could not include style sheet " .. options.stylesheet .. ": File not found")
+            end
             header = header:gsub('<link rel="stylesheet" type="text/css" href="STYLESHEET" />',
                "<style type=\"text/css\"><!--\n" .. style .. "\n--></style>")
          else
@@ -1257,9 +1257,9 @@ local function run_command_line(arg)
       end
       local footer = "</body></html>"
       if options.footer then
-			local f = io.open(options.footer) or error("Could not open file: " .. options.footer)
-			footer = f:read("*a")
-			f:close()
+         local f = io.open(options.footer) or error("Could not open file: " .. options.footer)
+         footer = f:read("*a")
+         f:close()
       end
       return header .. s .. footer
    end
@@ -1312,13 +1312,13 @@ Other options:
    op:param("c", "charset", function (x) options.charset = x end)
    op:param("i", "title", function(x) options.title = x end)
    op:param("s", "style", function(x) options.stylesheet = x end)
-	op:flag("l", "inline-style", function(x) options.inline_style = true end)
+   op:flag("l", "inline-style", function(x) options.inline_style = true end)
    op:flag("a", "append", function() options.append = true end)
    op:flag("t", "test", function()
-		local n = arg[0]:gsub("markdown.lua", "markdown-tests.lua")
+      local n = arg[0]:gsub("markdown.lua", "markdown-tests.lua")
       local f = io.open(n)
       if f then
-			f:close() dofile(n) 
+         f:close() dofile(n)
       else
          error("Cannot find markdown-tests.lua")
       end
@@ -1326,11 +1326,11 @@ Other options:
    end)
    op:flag("h", "help", function() print(help) run_stdin = false end)
    op:arg(function(path)
-			local file = io.open(path) or error("Could not open file: " .. path)
-			local s = file:read("*a")
-			file:close()
+      local file = io.open(path) or error("Could not open file: " .. path)
+      local s = file:read("*a")
+      file:close()
       s = run(s, options)
-			file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
+      file = io.open(outpath(path, options), "w") or error("Could not open output file: " .. outpath(path, options))
       file:write(s)
       file:close()
       run_stdin = false
