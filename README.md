@@ -39,7 +39,13 @@ Creates a file `test.html` with the converted content of `test.md`. Run:
 lua markdown.lua -h
 ```
 
-For a description of the command-line options.
+For a description of the command-line options. Run:
+
+```
+lua markdown.lua --version
+```
+
+For the version of `markdown.lua`.
 
 ## Installation
 
