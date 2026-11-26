@@ -1013,7 +1013,7 @@ local function auto_links(text)
       return add_escape("<a href=\"" .. address .. "\">") .. text .. "</a>"
    end
    -- links
-   text = text:gsub("<(https?:[^'\">%s]+)>", link)
+   text = text:gsub("<?(https?:[^'\">%s]+)>?", link)
    text = text:gsub("<(ftp:[^'\">%s]+)>", link)
 
    -- mail
