@@ -1013,7 +1013,7 @@ local function auto_links(text)
       return add_escape("<a href=\"" .. address .. "\">") .. text .. "</a>"
    end
    -- links
-   text = text:gsub("<(https?:[^'\">%s]+)>", link)
+   text = text:gsub("<?(https?:[^'\">%s]+)>?", link)
    text = text:gsub("<(ftp:[^'\">%s]+)>", link)
 
    -- mail
@@ -1252,7 +1252,7 @@ local function run_command_line(arg)
          f:close()
       else
          header = [[
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=CHARSET" />

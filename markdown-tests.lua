@@ -581,6 +581,16 @@ Mail links <niklas@frykholm.se> and <mailto:niklas@frykholm.se>.
 &#x2e;s&#101;</a>.</p> 
 ]]
 
+tests.better_autolink = [[
+An auto link like https://example.com
+
+https://and-the-beginning-of-line.net
+~
+<p>An auto link like <a href="https://example.com">https://example.com</a></p>
+
+<p><a href="https://and-the-beginning-of-line.net">https://and-the-beginning-of-line.net</a></p>
+]]
+
 -- Test escape codes
 tests.escapes = [[
 \*literal asterisks\*
